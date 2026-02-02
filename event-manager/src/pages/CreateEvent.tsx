@@ -47,8 +47,8 @@ export const CreateEvent: React.FC = () => {
         },
     });
 
-    const onSubmit = (data: EventFormData) => {
-        addEvent({
+    const onSubmit = async (data: EventFormData) => {
+        await addEvent({
             id: uuidv4(),
             title: data.title,
             description: data.description,

@@ -1,358 +1,224 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { AppEvent } from '../types/event';
+import { eventService } from '../api/services/eventService';
+import type { AppEvent, BudgetItem, TimelineItem, Venue, Vendor, Staff, Guest, Risk, ChecklistItem } from '../types/event';
 
 interface EventState {
     events: AppEvent[];
     isLoading: boolean;
     error: string | null;
 
-    // Actions
-    addEvent: (event: AppEvent) => void;
-    updateEvent: (id: string, event: Partial<AppEvent>) => void;
-    deleteEvent: (id: string) => void;
+    // Core Actions
+    fetchEvents: () => Promise<void>;
+    addEvent: (event: AppEvent) => Promise<void>;
+    updateEvent: (id: string, updates: Partial<AppEvent>) => Promise<void>;
+    deleteEvent: (id: string) => Promise<void>;
     getEvent: (id: string) => AppEvent | undefined;
 
-    // Budget Actions
-    addBudgetItem: (eventId: string, item: import('../types/event').BudgetItem) => void;
-    updateBudgetItem: (eventId: string, itemId: string, item: Partial<import('../types/event').BudgetItem>) => void;
+    // Sub-item Actions
+    syncEvent: (eventId: string) => Promise<void>;
+
+    addBudgetItem: (eventId: string, item: BudgetItem) => void;
+    updateBudgetItem: (eventId: string, itemId: string, item: Partial<BudgetItem>) => void;
     deleteBudgetItem: (eventId: string, itemId: string) => void;
 
-    // Timeline Actions
-    addTimelineItem: (eventId: string, item: import('../types/event').TimelineItem) => void;
-    updateTimelineItem: (eventId: string, itemId: string, item: Partial<import('../types/event').TimelineItem>) => void;
+    addTimelineItem: (eventId: string, item: TimelineItem) => void;
+    updateTimelineItem: (eventId: string, itemId: string, item: Partial<TimelineItem>) => void;
     deleteTimelineItem: (eventId: string, itemId: string) => void;
 
-    // Venue Actions
-    addVenue: (eventId: string, venue: import('../types/event').Venue) => void;
-    updateVenue: (eventId: string, venueId: string, venue: Partial<import('../types/event').Venue>) => void;
+    addVenue: (eventId: string, venue: Venue) => void;
+    updateVenue: (eventId: string, venueId: string, venue: Partial<Venue>) => void;
     deleteVenue: (eventId: string, venueId: string) => void;
 
-    // Vendor Actions
-    addVendor: (eventId: string, vendor: import('../types/event').Vendor) => void;
-    updateVendor: (eventId: string, vendorId: string, vendor: Partial<import('../types/event').Vendor>) => void;
+    addVendor: (eventId: string, vendor: Vendor) => void;
+    updateVendor: (eventId: string, vendorId: string, vendor: Partial<Vendor>) => void;
     deleteVendor: (eventId: string, vendorId: string) => void;
 
-    // Staff Actions
-    addStaff: (eventId: string, staff: import('../types/event').Staff) => void;
-    updateStaff: (eventId: string, staffId: string, staff: Partial<import('../types/event').Staff>) => void;
+    addStaff: (eventId: string, staff: Staff) => void;
+    updateStaff: (eventId: string, staffId: string, staff: Partial<Staff>) => void;
     deleteStaff: (eventId: string, staffId: string) => void;
 
-    // Guest Actions
-    addGuest: (eventId: string, guest: import('../types/event').Guest) => void;
-    updateGuest: (eventId: string, guestId: string, guest: Partial<import('../types/event').Guest>) => void;
+    addGuest: (eventId: string, guest: Guest) => void;
+    updateGuest: (eventId: string, guestId: string, guest: Partial<Guest>) => void;
     deleteGuest: (eventId: string, guestId: string) => void;
 
-    // Risk Actions
-    addRisk: (eventId: string, risk: import('../types/event').Risk) => void;
-    updateRisk: (eventId: string, riskId: string, risk: Partial<import('../types/event').Risk>) => void;
+    addRisk: (eventId: string, risk: Risk) => void;
+    updateRisk: (eventId: string, riskId: string, risk: Partial<Risk>) => void;
     deleteRisk: (eventId: string, riskId: string) => void;
 
-    // Checklist Actions
-    addChecklistItem: (eventId: string, item: import('../types/event').ChecklistItem) => void;
-    updateChecklistItem: (eventId: string, itemId: string, item: Partial<import('../types/event').ChecklistItem>) => void;
+    addChecklistItem: (eventId: string, item: ChecklistItem) => void;
+    updateChecklistItem: (eventId: string, itemId: string, item: Partial<ChecklistItem>) => void;
     deleteChecklistItem: (eventId: string, itemId: string) => void;
+
+    // Internal helper (not in interface to avoid exposure)
+    _updateLocalAndSync: (eventId: string, eventUpdateFn: (event: AppEvent) => AppEvent) => void;
 }
 
-export const useEventStore = create<EventState>()(
-    persist(
-        (set, get) => ({
-            events: [],
-            isLoading: false,
-            error: null,
+export const useEventStore = create<EventState>((set, get) => ({
+    events: [],
+    isLoading: false,
+    error: null,
 
-            addEvent: (event) => set((state) => ({
-                events: [event, ...state.events]
-            })),
-
-            updateEvent: (id, updatedEvent) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === id ? { ...event, ...updatedEvent, updatedAt: new Date().toISOString() } : event
-                ),
-            })),
-
-            deleteEvent: (id) => set((state) => ({
-                events: state.events.filter((event) => event.id !== id),
-            })),
-
-            getEvent: (id) => get().events.find((event) => event.id === id),
-
-            addBudgetItem: (eventId, item) => set((state) => ({
-                events: state.events.map((event) => {
-                    if (event.id !== eventId) return event;
-                    const newBudgetItems = [...(event.budgetItems || []), item];
-                    const spent = newBudgetItems.reduce((acc, curr) => acc + (curr.actualCost || 0), 0);
-                    return {
-                        ...event,
-                        budgetItems: newBudgetItems,
-                        budget: { ...event.budget, spent },
-                        updatedAt: new Date().toISOString()
-                    };
-                })
-            })),
-
-            updateBudgetItem: (eventId, itemId, updatedItem) => set((state) => ({
-                events: state.events.map((event) => {
-                    if (event.id !== eventId) return event;
-                    const newBudgetItems = (event.budgetItems || []).map((item) =>
-                        item.id === itemId ? { ...item, ...updatedItem } : item
-                    );
-                    const spent = newBudgetItems.reduce((acc, curr) => acc + (curr.actualCost || 0), 0);
-                    return {
-                        ...event,
-                        budgetItems: newBudgetItems,
-                        budget: { ...event.budget, spent },
-                        updatedAt: new Date().toISOString()
-                    };
-                })
-            })),
-
-            deleteBudgetItem: (eventId, itemId) => set((state) => ({
-                events: state.events.map((event) => {
-                    if (event.id !== eventId) return event;
-                    const newBudgetItems = (event.budgetItems || []).filter((item) => item.id !== itemId);
-                    const spent = newBudgetItems.reduce((acc, curr) => acc + (curr.actualCost || 0), 0);
-                    return {
-                        ...event,
-                        budgetItems: newBudgetItems,
-                        budget: { ...event.budget, spent },
-                        updatedAt: new Date().toISOString()
-                    };
-                })
-            })),
-
-            addTimelineItem: (eventId, item) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? { ...event, timelineItems: [...(event.timelineItems || []), item], updatedAt: new Date().toISOString() }
-                        : event
-                )
-            })),
-
-            updateTimelineItem: (eventId, itemId, updatedItem) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            timelineItems: (event.timelineItems || []).map((item) =>
-                                item.id === itemId ? { ...item, ...updatedItem } : item
-                            ),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-
-            deleteTimelineItem: (eventId, itemId) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            timelineItems: (event.timelineItems || []).filter((item) => item.id !== itemId),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-
-            // Venue Actions
-            addVenue: (eventId, venue) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? { ...event, venues: [...(event.venues || []), venue], updatedAt: new Date().toISOString() }
-                        : event
-                )
-            })),
-            updateVenue: (eventId, venueId, updatedVenue) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            venues: (event.venues || []).map((v) => v.id === venueId ? { ...v, ...updatedVenue } : v),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-            deleteVenue: (eventId, venueId) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            venues: (event.venues || []).filter((v) => v.id !== venueId),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-
-            // Vendor Actions
-            addVendor: (eventId, vendor) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? { ...event, vendors: [...(event.vendors || []), vendor], updatedAt: new Date().toISOString() }
-                        : event
-                )
-            })),
-            updateVendor: (eventId, vendorId, updatedVendor) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            vendors: (event.vendors || []).map((v) => v.id === vendorId ? { ...v, ...updatedVendor } : v),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-            deleteVendor: (eventId, vendorId) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            vendors: (event.vendors || []).filter((v) => v.id !== vendorId),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-
-            // Staff Actions
-            addStaff: (eventId, staff) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? { ...event, staff: [...(event.staff || []), staff], updatedAt: new Date().toISOString() }
-                        : event
-                )
-            })),
-            updateStaff: (eventId, staffId, updatedStaff) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            staff: (event.staff || []).map((s) => s.id === staffId ? { ...s, ...updatedStaff } : s),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-            deleteStaff: (eventId, staffId) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            staff: (event.staff || []).filter((s) => s.id !== staffId),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-
-            // Guest Actions
-            addGuest: (eventId, guest) => set((state) => ({
-                events: state.events.map((event) => {
-                    if (event.id !== eventId) return event;
-                    const guests = [...(event.guests || []), guest];
-                    const confirmed = guests.filter(g => g.status === 'registered' || g.status === 'attended').length;
-                    return {
-                        ...event,
-                        guests,
-                        guestCount: { ...event.guestCount, confirmed },
-                        updatedAt: new Date().toISOString()
-                    };
-                })
-            })),
-            updateGuest: (eventId, guestId, updatedGuest) => set((state) => ({
-                events: state.events.map((event) => {
-                    if (event.id !== eventId) return event;
-                    const guests = (event.guests || []).map(g => g.id === guestId ? { ...g, ...updatedGuest } : g);
-                    const confirmed = guests.filter(g => g.status === 'registered' || g.status === 'attended').length;
-                    return {
-                        ...event,
-                        guests,
-                        guestCount: { ...event.guestCount, confirmed },
-                        updatedAt: new Date().toISOString()
-                    };
-                })
-            })),
-            deleteGuest: (eventId, guestId) => set((state) => ({
-                events: state.events.map((event) => {
-                    if (event.id !== eventId) return event;
-                    const guests = (event.guests || []).filter(g => g.id !== guestId);
-                    const confirmed = guests.filter(g => g.status === 'registered' || g.status === 'attended').length;
-                    return {
-                        ...event,
-                        guests,
-                        guestCount: { ...event.guestCount, confirmed },
-                        updatedAt: new Date().toISOString()
-                    };
-                })
-            })),
-
-            // Risk Actions
-            addRisk: (eventId, risk) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? { ...event, risks: [...(event.risks || []), risk], updatedAt: new Date().toISOString() }
-                        : event
-                )
-            })),
-            updateRisk: (eventId, riskId, updatedRisk) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            risks: (event.risks || []).map(r => r.id === riskId ? { ...r, ...updatedRisk } : r),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-            deleteRisk: (eventId, riskId) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            risks: (event.risks || []).filter(r => r.id !== riskId),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-
-            // Checklist Actions
-            addChecklistItem: (eventId, item) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? { ...event, dayOfChecklist: [...(event.dayOfChecklist || []), item], updatedAt: new Date().toISOString() }
-                        : event
-                )
-            })),
-            updateChecklistItem: (eventId, itemId, updatedItem) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            dayOfChecklist: (event.dayOfChecklist || []).map(i => i.id === itemId ? { ...i, ...updatedItem } : i),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-            deleteChecklistItem: (eventId, itemId) => set((state) => ({
-                events: state.events.map((event) =>
-                    event.id === eventId
-                        ? {
-                            ...event,
-                            dayOfChecklist: (event.dayOfChecklist || []).filter(i => i.id !== itemId),
-                            updatedAt: new Date().toISOString()
-                        }
-                        : event
-                )
-            })),
-        }),
-        {
-            name: 'event-manager-storage',
+    fetchEvents: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const events = await eventService.getEvents();
+            set({ events, isLoading: false });
+        } catch (error) {
+            set({ error: 'Failed to fetch events', isLoading: false });
         }
-    )
-);
+    },
+
+    addEvent: async (event: AppEvent) => {
+        set({ isLoading: true });
+        try {
+            await eventService.addEvent(event);
+            set((state) => ({ events: [...state.events, event], isLoading: false }));
+        } catch (error) {
+            set({ error: 'Failed to add event', isLoading: false });
+        }
+    },
+
+    updateEvent: async (id: string, updates: Partial<AppEvent>) => {
+        try {
+            const updated = await eventService.updateEvent(id, updates);
+            set((state) => ({
+                events: state.events.map(e => e.id === id ? updated : e)
+            }));
+        } catch (error) {
+            set({ error: 'Failed to update event' });
+        }
+    },
+
+    deleteEvent: async (id: string) => {
+        try {
+            await eventService.deleteEvent(id);
+            set((state) => ({
+                events: state.events.filter(e => e.id !== id)
+            }));
+        } catch (error) {
+            set({ error: 'Failed to delete event' });
+        }
+    },
+
+    getEvent: (id: string) => {
+        return get().events.find(e => e.id === id);
+    },
+
+    syncEvent: async (eventId: string) => {
+        const event = get().events.find(e => e.id === eventId);
+        if (event) {
+            await eventService.updateEvent(eventId, event);
+        }
+    },
+
+    _updateLocalAndSync: (eventId: string, eventUpdateFn: (event: AppEvent) => AppEvent) => {
+        set((state) => ({
+            events: state.events.map((event) =>
+                event.id === eventId ? eventUpdateFn(event) : event
+            )
+        }));
+        get().syncEvent(eventId);
+    },
+
+    addBudgetItem: (eventId: string, item: BudgetItem) => get()._updateLocalAndSync(eventId, (event: AppEvent) => {
+        const budgetItems = [...(event.budgetItems || []), item];
+        const spent = budgetItems.reduce((acc: number, curr: BudgetItem) => acc + (curr.paid ? curr.actualCost : 0), 0);
+        return { ...event, budgetItems, budget: { ...event.budget, spent }, updatedAt: new Date().toISOString() };
+    }),
+
+    updateBudgetItem: (eventId: string, itemId: string, updatedItem: Partial<BudgetItem>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => {
+        const budgetItems = (event.budgetItems || []).map((i: BudgetItem) => i.id === itemId ? { ...i, ...updatedItem } : i);
+        const spent = budgetItems.reduce((acc: number, curr: BudgetItem) => acc + (curr.paid ? curr.actualCost : 0), 0);
+        return { ...event, budgetItems, budget: { ...event.budget, spent }, updatedAt: new Date().toISOString() };
+    }),
+
+    deleteBudgetItem: (eventId: string, itemId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => {
+        const budgetItems = (event.budgetItems || []).filter((i: BudgetItem) => i.id !== itemId);
+        const spent = budgetItems.reduce((acc: number, curr: BudgetItem) => acc + (curr.paid ? curr.actualCost : 0), 0);
+        return { ...event, budgetItems, budget: { ...event.budget, spent }, updatedAt: new Date().toISOString() };
+    }),
+
+    addTimelineItem: (eventId: string, item: TimelineItem) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event,
+        timelineItems: [...(event.timelineItems || []), item].sort((a: TimelineItem, b: TimelineItem) => a.time.localeCompare(b.time)),
+        updatedAt: new Date().toISOString()
+    })),
+
+    updateTimelineItem: (eventId: string, itemId: string, updatedItem: Partial<TimelineItem>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event,
+        timelineItems: (event.timelineItems || []).map((i: TimelineItem) => i.id === itemId ? { ...i, ...updatedItem } : i).sort((a: TimelineItem, b: TimelineItem) => a.time.localeCompare(b.time)),
+        updatedAt: new Date().toISOString()
+    })),
+
+    deleteTimelineItem: (eventId: string, itemId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event,
+        timelineItems: (event.timelineItems || []).filter((i: TimelineItem) => i.id !== itemId),
+        updatedAt: new Date().toISOString()
+    })),
+
+    addVenue: (eventId: string, venue: Venue) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, venues: [...(event.venues || []), venue], updatedAt: new Date().toISOString()
+    })),
+    updateVenue: (eventId: string, venueId: string, updatedVenue: Partial<Venue>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, venues: (event.venues || []).map((v: Venue) => v.id === venueId ? { ...v, ...updatedVenue } : v), updatedAt: new Date().toISOString()
+    })),
+    deleteVenue: (eventId: string, venueId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, venues: (event.venues || []).filter((v: Venue) => v.id !== venueId), updatedAt: new Date().toISOString()
+    })),
+
+    addVendor: (eventId: string, vendor: Vendor) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, vendors: [...(event.vendors || []), vendor], updatedAt: new Date().toISOString()
+    })),
+    updateVendor: (eventId: string, vendorId: string, updatedVendor: Partial<Vendor>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, vendors: (event.vendors || []).map((v: Vendor) => v.id === vendorId ? { ...v, ...updatedVendor } : v), updatedAt: new Date().toISOString()
+    })),
+    deleteVendor: (eventId: string, vendorId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, vendors: (event.vendors || []).filter((v: Vendor) => v.id !== vendorId), updatedAt: new Date().toISOString()
+    })),
+
+    addStaff: (eventId: string, staff: Staff) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, staff: [...(event.staff || []), staff], updatedAt: new Date().toISOString()
+    })),
+    updateStaff: (eventId: string, staffId: string, updatedStaff: Partial<Staff>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, staff: (event.staff || []).map((s: Staff) => s.id === staffId ? { ...s, ...updatedStaff } : s), updatedAt: new Date().toISOString()
+    })),
+    deleteStaff: (eventId: string, staffId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, staff: (event.staff || []).filter((s: Staff) => s.id !== staffId), updatedAt: new Date().toISOString()
+    })),
+
+    addGuest: (eventId: string, guest: Guest) => get()._updateLocalAndSync(eventId, (event: AppEvent) => {
+        const guests = [...(event.guests || []), guest];
+        const confirmed = guests.filter((g: Guest) => g.status === 'registered' || g.status === 'attended').length;
+        return { ...event, guests, guestCount: { ...event.guestCount, confirmed }, updatedAt: new Date().toISOString() };
+    }),
+    updateGuest: (eventId: string, guestId: string, updatedGuest: Partial<Guest>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => {
+        const guests = (event.guests || []).map((g: Guest) => g.id === guestId ? { ...g, ...updatedGuest } : g);
+        const confirmed = guests.filter((g: Guest) => g.status === 'registered' || g.status === 'attended').length;
+        return { ...event, guests, guestCount: { ...event.guestCount, confirmed }, updatedAt: new Date().toISOString() };
+    }),
+    deleteGuest: (eventId: string, guestId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => {
+        const guests = (event.guests || []).filter((g: Guest) => g.id !== guestId);
+        const confirmed = guests.filter((g: Guest) => g.status === 'registered' || g.status === 'attended').length;
+        return { ...event, guests, guestCount: { ...event.guestCount, confirmed }, updatedAt: new Date().toISOString() };
+    }),
+
+    addRisk: (eventId: string, risk: Risk) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, risks: [...(event.risks || []), risk], updatedAt: new Date().toISOString()
+    })),
+    updateRisk: (eventId: string, riskId: string, updatedRisk: Partial<Risk>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, risks: (event.risks || []).map((r: Risk) => r.id === riskId ? { ...r, ...updatedRisk } : r), updatedAt: new Date().toISOString()
+    })),
+    deleteRisk: (eventId: string, riskId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, risks: (event.risks || []).filter((r: Risk) => r.id !== riskId), updatedAt: new Date().toISOString()
+    })),
+
+    addChecklistItem: (eventId: string, item: ChecklistItem) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, dayOfChecklist: [...(event.dayOfChecklist || []), item], updatedAt: new Date().toISOString()
+    })),
+    updateChecklistItem: (eventId: string, itemId: string, updatedItem: Partial<ChecklistItem>) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, dayOfChecklist: (event.dayOfChecklist || []).map((i: ChecklistItem) => i.id === itemId ? { ...i, ...updatedItem } : i), updatedAt: new Date().toISOString()
+    })),
+    deleteChecklistItem: (eventId: string, itemId: string) => get()._updateLocalAndSync(eventId, (event: AppEvent) => ({
+        ...event, dayOfChecklist: (event.dayOfChecklist || []).filter((i: ChecklistItem) => i.id !== itemId), updatedAt: new Date().toISOString()
+    })),
+}));

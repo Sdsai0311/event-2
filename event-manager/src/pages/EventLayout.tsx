@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, NavLink, useParams, Navigate } from 'react-router-dom';
 import { useEventStore } from '../store/eventStore';
 import { LayoutDashboard, Wallet, CalendarClock, Settings, MapPin, ShoppingBag, Users as UsersIcon, UserCheck, ShieldAlert, Zap } from 'lucide-react';
 
 export const EventLayout: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { getEvent } = useEventStore();
+    const { getEvent, fetchEvents, isLoading, events } = useEventStore();
     const event = getEvent(id || '');
+
+    useEffect(() => {
+        if (events.length === 0) {
+            fetchEvents();
+        }
+    }, [fetchEvents, events.length]);
+
+    if (isLoading) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
 
     if (!event) {
         return <Navigate to="/" replace />;
