@@ -12,12 +12,22 @@ import { EventTeam } from './pages/EventTeam';
 import { EventGuests } from './pages/EventGuests';
 import { EventRisks } from './pages/EventRisks';
 import { EventDayOf } from './pages/EventDayOf';
+import { Login } from './pages/Login';
+import { Signup } from './pages/Signup';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Dashboard />} />
           <Route path="create-event" element={<CreateEvent />} />
           <Route path="events/:id" element={<EventLayout />}>
@@ -31,8 +41,8 @@ function App() {
             <Route path="risks" element={<EventRisks />} />
             <Route path="day-of" element={<EventDayOf />} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
