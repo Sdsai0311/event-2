@@ -6,6 +6,12 @@ import { EventLayout } from './pages/EventLayout';
 import { EventOverview } from './pages/EventOverview';
 import { EventBudget } from './pages/EventBudget';
 import { EventTimeline } from './pages/EventTimeline';
+import { EventVenues } from './pages/EventVenues';
+import { EventVendors } from './pages/EventVendors';
+import { EventTeam } from './pages/EventTeam';
+import { EventGuests } from './pages/EventGuests';
+import { EventRisks } from './pages/EventRisks';
+import { EventDayOf } from './pages/EventDayOf';
 
 function App() {
   return (
@@ -16,8 +22,14 @@ function App() {
           <Route path="create-event" element={<CreateEvent />} />
           <Route path="events/:id" element={<EventLayout />}>
             <Route index element={<EventOverview />} />
+            <Route path="guests" element={<EventGuests />} />
+            <Route path="venues" element={<EventVenues />} />
+            <Route path="vendors" element={<EventVendors />} />
             <Route path="budget" element={<EventBudget />} />
             <Route path="timeline" element={<EventTimeline />} />
+            <Route path="team" element={<EventTeam />} />
+            <Route path="risks" element={<EventRisks />} />
+            <Route path="day-of" element={<EventDayOf />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

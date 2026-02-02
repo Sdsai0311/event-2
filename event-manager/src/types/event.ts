@@ -21,6 +21,68 @@ export interface TimelineItem {
     assignee?: string;
 }
 
+export interface Venue {
+    id: string;
+    name: string;
+    address: string;
+    contactPerson: string;
+    email: string;
+    phone: string;
+    capacity: number;
+    status: 'potential' | 'contacted' | 'visited' | 'booked' | 'rejected';
+    cost: number;
+    notes?: string;
+}
+
+export interface Vendor {
+    id: string;
+    name: string;
+    category: string;
+    contactPerson: string;
+    email: string;
+    phone: string;
+    status: 'potential' | 'contacted' | 'booked' | 'rejected';
+    cost: number;
+    notes?: string;
+}
+
+export interface Staff {
+    id: string;
+    name: string;
+    role: string;
+    email: string;
+    phone: string;
+    status: 'confirmed' | 'pending';
+    notes?: string;
+}
+
+export interface Guest {
+    id: string;
+    name: string;
+    email: string;
+    status: 'invited' | 'registered' | 'attended' | 'cancelled';
+    group?: string; // e.g., VIP, Speaker
+    plusOne: boolean;
+    dietaryNotes?: string;
+}
+
+export interface Risk {
+    id: string;
+    title: string;
+    probability: 'low' | 'medium' | 'high';
+    impact: 'low' | 'medium' | 'high';
+    mitigationPlan: string;
+    status: 'open' | 'mitigated' | 'occurred';
+}
+
+export interface ChecklistItem {
+    id: string;
+    task: string;
+    time?: string;
+    assignee?: string;
+    isCompleted: boolean;
+}
+
 export interface AppEvent {
     id: string;
     title: string;
@@ -36,6 +98,12 @@ export interface AppEvent {
     };
     budgetItems: BudgetItem[];
     timelineItems: TimelineItem[];
+    venues: Venue[];
+    vendors: Vendor[];
+    staff: Staff[];
+    guests: Guest[];
+    risks: Risk[];
+    dayOfChecklist: ChecklistItem[];
     guestCount: {
         estimated: number;
         confirmed: number;

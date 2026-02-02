@@ -63,6 +63,12 @@ export const CreateEvent: React.FC = () => {
             },
             budgetItems: [],
             timelineItems: [],
+            venues: [],
+            vendors: [],
+            staff: [],
+            guests: [],
+            risks: [],
+            dayOfChecklist: [],
             guestCount: {
                 estimated: data.guestCount,
                 confirmed: 0,
