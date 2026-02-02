@@ -1,0 +1,18 @@
+import React from 'react';
+import { Bell, User } from 'lucide-react';
+
+export const Header: React.FC = () => {
+    return (
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+            <h1 className="text-xl font-semibold text-gray-800">Welcome Back</h1>
+            <div className="flex items-center space-x-4">
+                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                    <Bell className="h-5 w-5" />
+                </button>
+                <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                    <User className="h-5 w-5" />
+                </div>
+            </div>
+        </header>
+    );
+};
