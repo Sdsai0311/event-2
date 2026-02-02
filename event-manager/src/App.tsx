@@ -12,6 +12,7 @@ import { EventTeam } from './pages/EventTeam';
 import { EventGuests } from './pages/EventGuests';
 import { EventRisks } from './pages/EventRisks';
 import { EventDayOf } from './pages/EventDayOf';
+import { EventSettings } from './pages/EventSettings';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -40,6 +41,7 @@ function App() {
             <Route path="team" element={<EventTeam />} />
             <Route path="risks" element={<EventRisks />} />
             <Route path="day-of" element={<EventDayOf />} />
+            <Route path="settings" element={<EventSettings />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

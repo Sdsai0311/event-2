@@ -22,7 +22,8 @@ export const Login: React.FC = () => {
     const login = useAuthStore((state) => state.login);
 
     // Get the return URL from location state or default to home
-    const from = (location.state as any)?.from?.pathname || '/';
+    const state = location.state as { from?: { pathname: string } } | null;
+    const from = state?.from?.pathname || '/';
 
     const {
         register,

@@ -3,13 +3,19 @@ import { useOutletContext } from 'react-router-dom';
 import type { AppEvent } from '../types/event';
 import { Card } from '../components/ui/Card';
 import { Calendar, Users, Wallet } from 'lucide-react';
+import { GoogleCalendarSync } from '../components/google/GoogleCalendarSync';
 
 export const EventOverview: React.FC = () => {
     const { event } = useOutletContext<{ event: AppEvent }>();
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900">Event Overview</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Event Overview</h2>
+                <div className="flex space-x-2">
+                    <GoogleCalendarSync event={event} />
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card className="p-4 flex items-center space-x-4">

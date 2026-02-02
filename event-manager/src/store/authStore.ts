@@ -11,9 +11,11 @@ export interface User {
 interface AuthState {
     user: User | null;
     isAuthenticated: boolean;
+    googleAccessToken: string | null;
     login: (email: string, name: string) => Promise<void>;
     signup: (email: string, name: string) => Promise<void>;
     logout: () => void;
+    setGoogleAccessToken: (token: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -21,6 +23,7 @@ export const useAuthStore = create<AuthState>()(
         (set) => ({
             user: null,
             isAuthenticated: false,
+            googleAccessToken: null,
             login: async (email, name) => {
                 // Mock login delay
                 await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -48,7 +51,10 @@ export const useAuthStore = create<AuthState>()(
                 });
             },
             logout: () => {
-                set({ user: null, isAuthenticated: false });
+                set({ user: null, isAuthenticated: false, googleAccessToken: null });
+            },
+            setGoogleAccessToken: (token: string | null) => {
+                set({ googleAccessToken: token });
             },
         }),
         {

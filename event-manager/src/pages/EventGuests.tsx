@@ -11,6 +11,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
+import { GoogleContactsImport } from '../components/google/GoogleContactsImport';
 
 const guestSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -28,6 +29,23 @@ export const EventGuests: React.FC = () => {
     const { addGuest, updateGuest, deleteGuest } = useEventStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+
+    interface Contact {
+        name: string;
+        email: string;
+    }
+
+    const handleGoogleImport = (contacts: Contact[]) => {
+        contacts.forEach(contact => {
+            addGuest(event.id, {
+                id: uuidv4(),
+                name: contact.name,
+                email: contact.email,
+                status: 'invited',
+                plusOne: false,
+            });
+        });
+    };
 
     const {
         register,
@@ -101,10 +119,13 @@ export const EventGuests: React.FC = () => {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">Guest Management</h2>
-                <Button onClick={openAddModal}>
-                    <UserPlus className="h-5 w-5 mr-2" />
-                    Add Guest
-                </Button>
+                <div className="flex space-x-2">
+                    <GoogleContactsImport onImport={handleGoogleImport} />
+                    <Button onClick={openAddModal}>
+                        <UserPlus className="h-5 w-5 mr-2" />
+                        Add Guest
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

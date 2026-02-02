@@ -32,6 +32,10 @@ export interface Venue {
     status: 'potential' | 'contacted' | 'visited' | 'booked' | 'rejected';
     cost: number;
     notes?: string;
+    coordinates?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 export interface Vendor {

@@ -11,6 +11,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
+import { MapPreview } from '../components/maps/MapPreview';
 
 const venueSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -114,7 +115,7 @@ export const EventVenues: React.FC = () => {
                 ) : (
                     (event.venues || []).map((venue) => (
                         <Card key={venue.id} className={`p-6 border-l-4 ${venue.status === 'booked' ? 'border-green-500' :
-                                venue.status === 'rejected' ? 'border-red-500' : 'border-indigo-500'
+                            venue.status === 'rejected' ? 'border-red-500' : 'border-indigo-500'
                             }`}>
                             <div className="flex justify-between items-start">
                                 <div className="space-y-4 flex-1">
@@ -151,6 +152,22 @@ export const EventVenues: React.FC = () => {
                                         <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
                                             {venue.notes}
                                         </p>
+                                    )}
+
+                                    {venue.status === 'booked' && (
+                                        <div className="mt-4 pt-4 border-t border-gray-100">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <h4 className="text-sm font-bold text-gray-700 flex items-center">
+                                                    <MapPin className="h-4 w-4 mr-1 text-red-500" />
+                                                    Venue Map Location
+                                                </h4>
+                                            </div>
+                                            <MapPreview
+                                                lat={venue.coordinates?.lat || 40.7128}
+                                                lng={venue.coordinates?.lng || -74.0060}
+                                                title={venue.name}
+                                            />
+                                        </div>
                                     )}
                                 </div>
 

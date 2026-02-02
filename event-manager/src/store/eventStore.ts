@@ -63,7 +63,7 @@ export const useEventStore = create<EventState>((set, get) => ({
         try {
             const events = await eventService.getEvents();
             set({ events, isLoading: false });
-        } catch (error) {
+        } catch (_error) {
             set({ error: 'Failed to fetch events', isLoading: false });
         }
     },
@@ -73,7 +73,7 @@ export const useEventStore = create<EventState>((set, get) => ({
         try {
             await eventService.addEvent(event);
             set((state) => ({ events: [...state.events, event], isLoading: false }));
-        } catch (error) {
+        } catch (_error) {
             set({ error: 'Failed to add event', isLoading: false });
         }
     },
@@ -84,7 +84,7 @@ export const useEventStore = create<EventState>((set, get) => ({
             set((state) => ({
                 events: state.events.map(e => e.id === id ? updated : e)
             }));
-        } catch (error) {
+        } catch (_error) {
             set({ error: 'Failed to update event' });
         }
     },
@@ -95,7 +95,7 @@ export const useEventStore = create<EventState>((set, get) => ({
             set((state) => ({
                 events: state.events.filter(e => e.id !== id)
             }));
-        } catch (error) {
+        } catch (_error) {
             set({ error: 'Failed to delete event' });
         }
     },
