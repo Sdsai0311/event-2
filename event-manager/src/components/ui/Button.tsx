@@ -16,25 +16,25 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
         const variants = {
-            primary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
-            secondary: 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 focus:ring-indigo-500',
-            outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-indigo-500',
-            ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-500',
-            danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-            success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
+            primary: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200/50 focus:ring-indigo-500',
+            secondary: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:ring-indigo-200',
+            outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:ring-slate-100',
+            ghost: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:ring-slate-100',
+            danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-md shadow-rose-200/50 focus:ring-rose-500',
+            success: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-200/50 focus:ring-emerald-500',
         };
 
         const sizes = {
-            sm: 'px-3 py-1.5 text-sm',
-            md: 'px-4 py-2 text-sm',
-            lg: 'px-6 py-3 text-base',
+            sm: 'px-3 py-1.5 text-xs font-bold tracking-tight',
+            md: 'px-5 py-2.5 text-sm font-bold tracking-tight',
+            lg: 'px-8 py-4 text-base font-black tracking-tight',
         };
 
         return (
             <button
                 ref={ref}
                 className={cn(
-                    'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+                    'inline-flex items-center justify-center rounded-2xl font-bold transition-all duration-300 focus:outline-none focus:ring-4 disabled:opacity-50 disabled:pointer-events-none active:scale-95',
                     variants[variant],
                     sizes[size],
                     className

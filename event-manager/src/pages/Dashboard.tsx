@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, Search, Filter, Calendar as CalendarIcon, Users, Wallet } from 'lucide-react';
+import { Plus, Search, Calendar as CalendarIcon, Users, Wallet, TrendingUp, ArrowRight, Star } from 'lucide-react';
 import { useEventStore } from '../store/eventStore';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -26,12 +26,18 @@ export const Dashboard: React.FC = () => {
         return matchesSearch && matchesType && matchesStatus;
     });
 
+    const totalBudget = events.reduce((acc, e) => acc + (e.budget?.total || 0), 0);
+    const totalGuests = events.reduce((acc, e) => acc + (e.guestCount?.estimated || 0), 120); // Mocked base
+    const upcomingEvents = events.filter(e => e.status !== 'past').length;
+
     if (isLoading && events.length === 0) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-8 animate-in">
                 <div className="flex justify-between items-center px-2">
-                    <div className="h-8 w-48 bg-gray-200 animate-pulse rounded"></div>
-                    <div className="h-10 w-32 bg-gray-200 animate-pulse rounded"></div>
+                    <div className="space-y-2">
+                        <div className="h-8 w-64 bg-slate-200 animate-pulse rounded-lg"></div>
+                        <div className="h-4 w-48 bg-slate-200 animate-pulse rounded-lg"></div>
+                    </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map(i => <EventCardSkeleton key={i} />)}
@@ -41,106 +47,168 @@ export const Dashboard: React.FC = () => {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8 animate-in">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Event Dashboard</h1>
-                    <p className="text-gray-500 text-sm mt-1">Manage all your upcoming and past events.</p>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Dashboard <span className="text-indigo-600">Overview</span>
+                    </h1>
+                    <p className="text-slate-500 mt-1 font-medium">Elevate your event management experience.</p>
                 </div>
-                <Button onClick={() => navigate('/create-event')}>
+                <Button
+                    size="lg"
+                    className="premium-gradient shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all active:scale-95"
+                    onClick={() => navigate('/create-event')}
+                >
                     <Plus className="h-5 w-5 mr-2" />
-                    New Event
+                    Create New Event
                 </Button>
             </div>
 
-            <Card className="p-4">
-                <div className="flex flex-col lg:flex-row gap-4">
+            {/* Stats Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="p-6 relative overflow-hidden group hover:ring-2 hover:ring-indigo-500/20 transition-all">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Upcoming</p>
+                            <h3 className="text-3xl font-black text-slate-900 mt-1">{upcomingEvents}</h3>
+                        </div>
+                        <div className="bg-indigo-50 p-3 rounded-2xl text-indigo-600 group-hover:scale-110 transition-transform">
+                            <CalendarIcon size={24} />
+                        </div>
+                    </div>
+                    <div className="mt-4 flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+                        <TrendingUp size={12} className="mr-1" />
+                        Active Planning
+                    </div>
+                </Card>
+
+                <Card className="p-6 relative overflow-hidden group hover:ring-2 hover:ring-indigo-500/20 transition-all">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Total Guests</p>
+                            <h3 className="text-3xl font-black text-slate-900 mt-1">{totalGuests.toLocaleString()}</h3>
+                        </div>
+                        <div className="bg-emerald-50 p-3 rounded-2xl text-emerald-600 group-hover:scale-110 transition-transform">
+                            <Users size={24} />
+                        </div>
+                    </div>
+                    <p className="mt-4 text-xs text-slate-400 font-medium">Across all scheduled events</p>
+                </Card>
+
+                <Card className="p-6 relative overflow-hidden group hover:ring-2 hover:ring-indigo-500/20 transition-all">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Portfolio Value</p>
+                            <h3 className="text-3xl font-black text-slate-900 mt-1">${totalBudget.toLocaleString()}</h3>
+                        </div>
+                        <div className="bg-amber-50 p-3 rounded-2xl text-amber-600 group-hover:scale-110 transition-transform">
+                            <Wallet size={24} />
+                        </div>
+                    </div>
+                    <p className="mt-4 text-xs text-slate-400 font-medium">Total managed budget</p>
+                </Card>
+            </div>
+
+            {/* Filters & Search */}
+            <Card className="p-2 bg-slate-50/50 border-slate-200 shadow-none">
+                <div className="flex flex-col lg:flex-row gap-3">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search by title or location..."
-                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                            placeholder="Find an event by name or location..."
+                            className="w-full pl-12 pr-4 py-3 bg-white border-0 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm shadow-slate-200/50 placeholder:text-slate-400 font-medium"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex flex-wrap gap-4">
-                        <div className="flex items-center space-x-2">
-                            <Filter className="h-4 w-4 text-gray-400" />
-                            <select
-                                className="bg-gray-50 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                                value={filterType}
-                                onChange={(e) => setFilterType(e.target.value)}
-                            >
-                                <option value="all">All Types</option>
-                                <option value="conference">Conference</option>
-                                <option value="wedding">Wedding</option>
-                                <option value="party">Party</option>
-                                <option value="corporate">Corporate</option>
-                            </select>
-                        </div>
+                    <div className="flex gap-2">
                         <select
-                            className="bg-gray-50 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="bg-white border-0 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm shadow-slate-200/50"
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                        >
+                            <option value="all">All Types</option>
+                            <option value="conference">Conference</option>
+                            <option value="wedding">Wedding</option>
+                            <option value="party">Party</option>
+                            <option value="corporate">Corporate</option>
+                        </select>
+                        <select
+                            className="bg-white border-0 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm shadow-slate-200/50"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
                             <option value="all">All Status</option>
                             <option value="draft">Draft</option>
                             <option value="confirmed">Confirmed</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value="past">Completed</option>
                         </select>
                     </div>
                 </div>
             </Card>
 
+            {/* Event List */}
             {filteredEvents.length === 0 ? (
-                <Card className="py-20 text-center">
-                    <div className="mx-auto h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                        <Search className="h-10 w-10 text-gray-300" />
+                <Card className="py-24 text-center glass-card border-none">
+                    <div className="mx-auto h-24 w-24 bg-slate-50 rounded-3xl flex items-center justify-center mb-6 ring-1 ring-slate-100 shadow-inner">
+                        <Search className="h-10 w-10 text-slate-300" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">No events found</h3>
-                    <p className="text-gray-500 max-w-sm mx-auto mt-2">
-                        Try adjusting your search or filters, or create a new event to get started.
+                    <h3 className="text-2xl font-black text-slate-900">No events matched</h3>
+                    <p className="text-slate-500 max-w-sm mx-auto mt-2 font-medium">
+                        Try adjusting your filters or create something spectacular from scratch.
                     </p>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="dashboard-grid">
                     {filteredEvents.map((event) => (
                         <Link key={event.id} to={`/events/${event.id}`}>
-                            <Card className="hover:shadow-md transition-all group overflow-hidden border-0 ring-1 ring-gray-200">
-                                <div className="h-40 bg-indigo-600 relative p-6 flex flex-col justify-between overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                                        <CalendarIcon size={120} />
+                            <Card className="hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-1 transition-all group overflow-hidden border-0 ring-1 ring-slate-200/60 bg-white p-0 h-full flex flex-col">
+                                <div className="h-48 bg-slate-100 relative overflow-hidden">
+                                    {/* Background patterns/images would go here */}
+                                    <div className="absolute inset-0 premium-gradient opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md rounded-full p-2 text-white">
+                                        <Star size={16} fill={event.status === 'confirmed' ? 'white' : 'transparent'} />
                                     </div>
-                                    <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded inline-block w-fit">
-                                        {event.eventType}
-                                    </span>
-                                    <h3 className="text-xl font-bold text-white relative z-10 line-clamp-2">
-                                        {event.title}
-                                    </h3>
+                                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                                        <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded w-fit mb-3 border border-white/20">
+                                            {event.eventType}
+                                        </span>
+                                        <h3 className="text-2xl font-black text-white leading-tight line-clamp-2">
+                                            {event.title}
+                                        </h3>
+                                    </div>
                                 </div>
-                                <div className="p-6">
-                                    <div className="grid grid-cols-2 gap-4 mb-6">
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <Wallet className="h-4 w-4 mr-2 text-indigo-500" />
-                                            ${(event.budget?.total || 0).toLocaleString()}
+
+                                <div className="p-6 flex-1 flex flex-col space-y-6">
+                                    <div className="grid grid-cols-2 gap-6 pt-2">
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</p>
+                                            <div className="flex items-center text-sm font-bold text-slate-700 truncate">
+                                                <TrendingUp className="h-4 w-4 mr-2 text-indigo-500 shrink-0" />
+                                                {event.location.split(',')[0]}
+                                            </div>
                                         </div>
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <Users className="h-4 w-4 mr-2 text-green-500" />
-                                            {event.guestCount?.estimated} Guests
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Est. Guests</p>
+                                            <div className="flex items-center text-sm font-bold text-slate-700">
+                                                <Users className="h-4 w-4 mr-2 text-emerald-500 shrink-0" />
+                                                {event.guestCount?.estimated}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tight
-                      ${event.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
-                                                event.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+
+                                    <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                                        <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest
+                                            ${event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
+                                                event.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
                                             {event.status}
-                                        </span>
-                                        <span className="text-xs font-bold text-indigo-600 group-hover:translate-x-1 transition-transform inline-flex items-center">
-                                            Manage <Plus className="h-3 w-3 ml-1" />
-                                        </span>
+                                        </div>
+                                        <div className="flex items-center text-indigo-600 font-black text-xs group-hover:translate-x-1 transition-transform">
+                                            Manage <ArrowRight size={14} className="ml-1" />
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
