@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# 🌟 Event Manager Pro
+A premium, full-stack themed event management application built with React, TypeScript, and Google Cloud integrations.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSdsai0311%2Fevent-2&root-directory=event-manager)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Sdsai0311/event-2&base=event-manager)
 
-Currently, two official plugins are available:
+## 🚀 Features
+- **Smart Dashboard**: Comprehensive overview of all events with filtering and search.
+- **Google Integrations**: 
+  - 📅 **Google Calendar**: One-click sync for event dates and times.
+  - 📍 **Google Maps**: Visualized venue locations for booked events.
+  - 👥 **Google Contacts**: Direct import of guest lists from your Google account.
+- **Project Management**: 
+  - 💰 **Budget Tracker**: Real-time expense monitoring and paid status.
+  - 🕒 **Timeline Planner**: Minute-by-minute schedule management.
+  - 📋 **Day-of Checklist**: Interactive task list for event execution.
+- **Vendor & Venue Management**: Database for contacts, costs, and statuses.
+- **Guest List Management**: Tracking invitations, VIP status, and dietary notes.
+- **Security**: Full authentication flow with protected routes.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ Tech Stack
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS, Lucide Icons
+- **State Management**: Zustand (with Persistence)
+- **Forms**: React Hook Form, Zod
+- **API**: Mock service layer (ready for backend swap)
 
-## React Compiler
+## 📦 Deployment
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### GitHub Pages (Automated)
+This repository is configured with GitHub Actions to automatically deploy to GitHub Pages on every push to `main`.
+1. Go to your repository settings on GitHub.
+2. Select **Pages** from the sidebar.
+3. Under **Build and deployment**, set the source to **GitHub Actions**.
 
-## Expanding the ESLint configuration
+### Vercel / Netlify
+For the best experience with SPA routing, we recommend Vercel or Netlify. Click the buttons above for a one-click deployment.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## ⚙️ Configuration
+Create a `.env` file in the `event-manager` directory with your Google API keys:
+```env
+VITE_GOOGLE_CLIENT_ID=your_client_id
+VITE_GOOGLE_MAPS_API_KEY=your_maps_key
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🏃 Local Development
+```bash
+cd event-manager
+npm install
+npm run dev
 ```
