@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, Search, Calendar as CalendarIcon, Users, Wallet, TrendingUp, ArrowRight, Star } from 'lucide-react';
 import { useEventStore } from '../store/eventStore';
+import { EVENT_TYPE_LABELS } from '../types/event';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { EventCardSkeleton } from '../components/ui/LoadingSkeleton';
@@ -52,9 +53,9 @@ export const Dashboard: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                        Dashboard <span className="text-indigo-600">Overview</span>
+                        College Event <span className="text-indigo-600">Hub</span>
                     </h1>
-                    <p className="text-slate-500 mt-1 font-medium">Elevate your event management experience.</p>
+                    <p className="text-slate-500 mt-1 font-medium">Replace manual management with automated excellence.</p>
                 </div>
                 <Button
                     size="lg"
@@ -130,11 +131,22 @@ export const Dashboard: React.FC = () => {
                             value={filterType}
                             onChange={(e) => setFilterType(e.target.value)}
                         >
-                            <option value="all">All Types</option>
+                            <option value="all">All Categories</option>
+                            <option value="technical-symposium">Technical Symposium</option>
+                            <option value="workshop">Workshop</option>
+                            <option value="seminar">Seminar</option>
+                            <option value="cultural-fest">Cultural Fest</option>
+                            <option value="sports-meet">Sports Meet</option>
+                            <option value="hackathon">Hackathon</option>
                             <option value="conference">Conference</option>
-                            <option value="wedding">Wedding</option>
-                            <option value="party">Party</option>
-                            <option value="corporate">Corporate</option>
+                            <option value="club-activity">Club Activity</option>
+                            <option value="orientation">Orientation</option>
+                            <option value="placement-drive">Placement Drive</option>
+                            <option value="nss-social-service">NSS / Social Service</option>
+                            <option value="alumni-meet">Alumni Meet</option>
+                            <option value="farewell-freshers">Farewell / Freshers</option>
+                            <option value="academic-event">Academic Event</option>
+                            <option value="other">Other</option>
                         </select>
                         <select
                             className="bg-white border-0 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm shadow-slate-200/50"
@@ -174,7 +186,7 @@ export const Dashboard: React.FC = () => {
                                     </div>
                                     <div className="absolute inset-0 p-6 flex flex-col justify-end">
                                         <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded w-fit mb-3 border border-white/20">
-                                            {event.eventType}
+                                            {EVENT_TYPE_LABELS[event.eventType] || event.eventType}
                                         </span>
                                         <h3 className="text-2xl font-black text-white leading-tight line-clamp-2">
                                             {event.title}

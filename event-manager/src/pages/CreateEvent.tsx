@@ -18,7 +18,23 @@ const eventSchema = z.object({
     }),
     time: z.string().min(1, 'Time is required'),
     location: z.string().min(3, 'Location is required'),
-    eventType: z.enum(['conference', 'wedding', 'party', 'corporate', 'other'] as const),
+    eventType: z.enum([
+        'technical-symposium',
+        'workshop',
+        'seminar',
+        'cultural-fest',
+        'sports-meet',
+        'hackathon',
+        'conference',
+        'club-activity',
+        'orientation',
+        'placement-drive',
+        'nss-social-service',
+        'alumni-meet',
+        'farewell-freshers',
+        'academic-event',
+        'other'
+    ] as const),
     budget: z.coerce.number().min(0, 'Budget must be positive'),
     guestCount: z.coerce.number().min(0, 'Guest count must be positive'),
 });
@@ -41,7 +57,7 @@ export const CreateEvent: React.FC = () => {
             date: '',
             time: '',
             location: '',
-            eventType: 'conference',
+            eventType: 'technical-symposium',
             budget: 0,
             guestCount: 0,
         },
@@ -81,7 +97,7 @@ export const CreateEvent: React.FC = () => {
 
     return (
         <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">Create New Event</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Create New College Event</h1>
             <Card>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="space-y-4">
@@ -89,7 +105,7 @@ export const CreateEvent: React.FC = () => {
                             label="Event Title"
                             {...register('title')}
                             error={errors.title?.message}
-                            placeholder="e.g., Annual Tech Conference"
+                            placeholder="e.g., Annual Tech Symposium 2024"
                         />
 
                         <div>
@@ -100,11 +116,21 @@ export const CreateEvent: React.FC = () => {
                                 {...register('eventType')}
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             >
+                                <option value="technical-symposium">Technical Symposium</option>
+                                <option value="workshop">Workshop / Hands-on Training</option>
+                                <option value="seminar">Seminar / Guest Lecture</option>
+                                <option value="cultural-fest">Cultural Fest</option>
+                                <option value="sports-meet">Sports Meet / Tournament</option>
+                                <option value="hackathon">Hackathon</option>
                                 <option value="conference">Conference</option>
-                                <option value="wedding">Wedding</option>
-                                <option value="party">Party</option>
-                                <option value="corporate">Corporate</option>
-                                <option value="other">Other</option>
+                                <option value="club-activity">Club Activity</option>
+                                <option value="orientation">Orientation / Induction Program</option>
+                                <option value="placement-drive">Placement Drive</option>
+                                <option value="nss-social-service">NSS / Social Service Event</option>
+                                <option value="alumni-meet">Alumni Meet</option>
+                                <option value="farewell-freshers">Farewell / Freshers Day</option>
+                                <option value="academic-event">Internal Assessment / Academic Event</option>
+                                <option value="other">Other (Custom Event)</option>
                             </select>
                             {errors.eventType && (
                                 <p className="mt-1 text-sm text-red-600">{errors.eventType.message}</p>

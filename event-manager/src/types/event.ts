@@ -1,5 +1,38 @@
 export type EventStatus = 'draft' | 'planning' | 'confirmed' | 'past' | 'cancelled';
-export type EventType = 'conference' | 'wedding' | 'party' | 'corporate' | 'other';
+export type EventType =
+    | 'technical-symposium'
+    | 'workshop'
+    | 'seminar'
+    | 'cultural-fest'
+    | 'sports-meet'
+    | 'hackathon'
+    | 'conference'
+    | 'club-activity'
+    | 'orientation'
+    | 'placement-drive'
+    | 'nss-social-service'
+    | 'alumni-meet'
+    | 'farewell-freshers'
+    | 'academic-event'
+    | 'other';
+
+export const EVENT_TYPE_LABELS: Record<EventType, string> = {
+    'technical-symposium': 'Technical Symposium',
+    'workshop': 'Workshop / Hands-on Training',
+    'seminar': 'Seminar / Guest Lecture',
+    'cultural-fest': 'Cultural Fest',
+    'sports-meet': 'Sports Meet',
+    'hackathon': 'Hackathon',
+    'conference': 'Conference',
+    'club-activity': 'Club Activity',
+    'orientation': 'Orientation / Induction',
+    'placement-drive': 'Placement Drive',
+    'nss-social-service': 'NSS / Social Service',
+    'alumni-meet': 'Alumni Meet',
+    'farewell-freshers': 'Farewell / Freshers Day',
+    'academic-event': 'Academic Event',
+    'other': 'Other'
+};
 
 export interface BudgetItem {
     id: string;

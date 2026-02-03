@@ -16,8 +16,8 @@ export const Sidebar: React.FC = () => {
                         <Sparkles className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <span className="text-xl font-black text-slate-900 tracking-tight block leading-none">Event<span className="text-indigo-600">Pro</span></span>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Management Suite</span>
+                        <span className="text-xl font-black text-slate-900 tracking-tight block leading-none">Campus<span className="text-indigo-600">Pro</span></span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">College Event Platform</span>
                     </div>
                 </div>
             </div>

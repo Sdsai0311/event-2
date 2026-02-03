@@ -2,8 +2,9 @@ import React from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AppEvent } from '../types/event';
 import { Card } from '../components/ui/Card';
-import { Calendar, Users, Wallet, Star, Info, MapPin } from 'lucide-react';
+import { Calendar, Users, Wallet, Star, Info, MapPin, GraduationCap } from 'lucide-react';
 import { GoogleCalendarSync } from '../components/google/GoogleCalendarSync';
+import { EVENT_TYPE_LABELS } from '../types/event';
 
 export const EventOverview: React.FC = () => {
     const { event } = useOutletContext<{ event: AppEvent }>();
@@ -12,8 +13,14 @@ export const EventOverview: React.FC = () => {
         <div className="space-y-10 animate-in">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Project <span className="text-indigo-600">Brief</span></h2>
-                    <p className="text-slate-500 font-medium mt-1">Core details and high-level progress tracking.</p>
+                    <div className="flex items-center space-x-2 mb-2">
+                        <GraduationCap className="h-5 w-5 text-indigo-600" />
+                        <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">
+                            {EVENT_TYPE_LABELS[event.eventType]}
+                        </span>
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Event <span className="text-indigo-600">Brief</span></h2>
+                    <p className="text-slate-500 font-medium mt-1">Automated management for your campus events.</p>
                 </div>
                 <div className="flex items-center space-x-3 w-full md:w-auto">
                     <GoogleCalendarSync event={event} />
@@ -30,12 +37,12 @@ export const EventOverview: React.FC = () => {
                             <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
                                 <Users size={24} />
                             </div>
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Guest Metrics</span>
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Registration Status</span>
                         </div>
                         <h4 className="text-4xl font-black text-slate-900 tracking-tighter">
                             {event.guestCount.confirmed} <span className="text-lg font-bold text-slate-300">/ {event.guestCount.estimated}</span>
                         </h4>
-                        <p className="text-sm text-slate-500 font-medium mt-2">Confirmed vs estimated attendance</p>
+                        <p className="text-sm text-slate-500 font-medium mt-2">Registered vs Target attendees</p>
                     </div>
                     <div className="h-1.5 w-full bg-slate-50">
                         <div
