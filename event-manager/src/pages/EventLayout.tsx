@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Outlet, NavLink, useParams, Navigate } from 'react-router-dom';
 import { useEventStore } from '../store/eventStore';
-import { LayoutDashboard, Wallet, CalendarClock, Settings, MapPin, ShoppingBag, Users as UsersIcon, UserCheck, ShieldAlert, Zap } from 'lucide-react';
+import { LayoutDashboard, Wallet, CalendarClock, Settings, MapPin, ShoppingBag, Users as UsersIcon, UserCheck, ShieldAlert, Zap, Award, MessageSquare } from 'lucide-react';
 
 export const EventLayout: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -28,14 +28,16 @@ export const EventLayout: React.FC = () => {
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '' },
-        { icon: UserCheck, label: 'Guests', path: 'guests' },
+        { icon: UserCheck, label: 'Guests & Attendance', path: 'guests' },
+        { icon: Zap, label: 'Day of Event', path: 'day-of' },
+        { icon: Award, label: 'Certificates', path: 'certificates' },
+        { icon: MessageSquare, label: 'Feedback & Eval', path: 'feedback' },
         { icon: MapPin, label: 'Venues', path: 'venues' },
         { icon: ShoppingBag, label: 'Vendors', path: 'vendors' },
         { icon: Wallet, label: 'Budget', path: 'budget' },
         { icon: CalendarClock, label: 'Timeline', path: 'timeline' },
         { icon: UsersIcon, label: 'Team', path: 'team' },
         { icon: ShieldAlert, label: 'Risks', path: 'risks' },
-        { icon: Zap, label: 'Day of Event', path: 'day-of' },
         { icon: Settings, label: 'Settings', path: 'settings' },
     ];
 

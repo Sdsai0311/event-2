@@ -13,8 +13,11 @@ import { EventGuests } from './pages/EventGuests';
 import { EventRisks } from './pages/EventRisks';
 import { EventDayOf } from './pages/EventDayOf';
 import { EventSettings } from './pages/EventSettings';
+import { EventCertificates } from './pages/EventCertificates';
+import { EventFeedback } from './pages/EventFeedback';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { StudentRegistration } from './pages/StudentRegistration';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -41,9 +44,12 @@ function App() {
             <Route path="team" element={<EventTeam />} />
             <Route path="risks" element={<EventRisks />} />
             <Route path="day-of" element={<EventDayOf />} />
+            <Route path="certificates" element={<EventCertificates />} />
+            <Route path="feedback" element={<EventFeedback />} />
             <Route path="settings" element={<EventSettings />} />
           </Route>
         </Route>
+        <Route path="/register/:eventId" element={<StudentRegistration />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

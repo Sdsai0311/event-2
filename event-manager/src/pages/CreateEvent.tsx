@@ -35,6 +35,10 @@ const eventSchema = z.object({
         'academic-event',
         'other'
     ] as const),
+    department: z.string().min(2, 'Department is required'),
+    objectives: z.string().min(10, 'Objectives are required'),
+    outcomes: z.string().min(10, 'Outcomes are required'),
+    facultyCoordinator: z.string().min(3, 'Faculty coordinator is required'),
     budget: z.coerce.number().min(0, 'Budget must be positive'),
     guestCount: z.coerce.number().min(0, 'Guest count must be positive'),
 });
@@ -58,6 +62,10 @@ export const CreateEvent: React.FC = () => {
             time: '',
             location: '',
             eventType: 'technical-symposium',
+            department: '',
+            objectives: '',
+            outcomes: '',
+            facultyCoordinator: '',
             budget: 0,
             guestCount: 0,
         },
@@ -67,12 +75,17 @@ export const CreateEvent: React.FC = () => {
         await addEvent({
             id: uuidv4(),
             title: data.title,
-            description: data.description,
+            category: data.eventType as EventType,
+            department: data.department,
             date: data.date,
             time: data.time,
             location: data.location,
+            description: data.description,
+            objectives: data.objectives,
+            outcomes: data.outcomes,
+            facultyCoordinator: data.facultyCoordinator,
             eventType: data.eventType as EventType,
-            status: 'draft',
+            status: 'pending-approval',
             budget: {
                 total: data.budget,
                 spent: 0,
@@ -137,6 +150,20 @@ export const CreateEvent: React.FC = () => {
                             )}
                         </div>
 
+                        <Input
+                            label="Department / Host Club"
+                            {...register('department')}
+                            error={errors.department?.message}
+                            placeholder="e.g., Computer Science / Robotics Club"
+                        />
+
+                        <Input
+                            label="Faculty Coordinator"
+                            {...register('facultyCoordinator')}
+                            error={errors.facultyCoordinator?.message}
+                            placeholder="e.g., Dr. Jane Smith"
+                        />
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Description
@@ -153,6 +180,44 @@ export const CreateEvent: React.FC = () => {
                             />
                             {errors.description && (
                                 <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Event Objectives
+                            </label>
+                            <textarea
+                                {...register('objectives')}
+                                rows={3}
+                                className={`
+                                    block w-full rounded-md border-gray-300 shadow-sm
+                                    focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm
+                                    ${errors.objectives ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+                                `}
+                                placeholder="What do you aim to achieve?"
+                            />
+                            {errors.objectives && (
+                                <p className="mt-1 text-sm text-red-600">{errors.objectives.message}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Expected Outcomes
+                            </label>
+                            <textarea
+                                {...register('outcomes')}
+                                rows={3}
+                                className={`
+                                    block w-full rounded-md border-gray-300 shadow-sm
+                                    focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm
+                                    ${errors.outcomes ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+                                `}
+                                placeholder="What will participants gain?"
+                            />
+                            {errors.outcomes && (
+                                <p className="mt-1 text-sm text-red-600">{errors.outcomes.message}</p>
                             )}
                         </div>
 

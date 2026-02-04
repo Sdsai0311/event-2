@@ -1,4 +1,4 @@
-export type EventStatus = 'draft' | 'planning' | 'confirmed' | 'past' | 'cancelled';
+export type EventStatus = 'draft' | 'pending-approval' | 'confirmed' | 'past' | 'cancelled';
 export type EventType =
     | 'technical-symposium'
     | 'workshop'
@@ -97,9 +97,13 @@ export interface Guest {
     id: string;
     name: string;
     email: string;
+    registrationId: string;
+    department: string;
+    year: string;
     status: 'invited' | 'registered' | 'attended' | 'cancelled';
     group?: string; // e.g., VIP, Speaker
     plusOne: boolean;
+    qrCodeUrl?: string;
     dietaryNotes?: string;
 }
 
@@ -123,12 +127,17 @@ export interface ChecklistItem {
 export interface AppEvent {
     id: string;
     title: string;
-    description: string;
+    category: EventType;
+    department: string;
     date: string;
     time: string;
     location: string;
+    description: string;
+    objectives: string;
+    outcomes: string;
+    facultyCoordinator: string;
     status: EventStatus;
-    eventType: EventType;
+    eventType: EventType; // Keeping for backward compatibility or filtering
     budget: {
         total: number;
         spent: number;
@@ -144,6 +153,11 @@ export interface AppEvent {
     guestCount: {
         estimated: number;
         confirmed: number;
+    };
+    feedbackUrl?: string;
+    evaluationReport?: {
+        averageRating: number;
+        summary: string;
     };
     createdAt: string;
     updatedAt: string;
