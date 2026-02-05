@@ -7,9 +7,12 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { EventCardSkeleton } from '../components/ui/LoadingSkeleton';
 
+import { useConfigStore } from '../store/configStore';
+
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const { events, isLoading, fetchEvents } = useEventStore();
+    const { collegeName } = useConfigStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -53,7 +56,7 @@ export const Dashboard: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                        College Event <span className="text-indigo-600">Hub</span>
+                        {collegeName} <span className="text-indigo-600">Event Portal</span>
                     </h1>
                     <p className="text-slate-500 mt-1 font-medium">Replace manual management with automated excellence.</p>
                 </div>

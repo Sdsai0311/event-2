@@ -1,8 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Sparkles, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Sparkles, CalendarDays, Edit3, Check } from 'lucide-react';
+import { useConfigStore } from '../../store/configStore';
 
 export const Sidebar: React.FC = () => {
+    const { collegeName, setCollegeName } = useConfigStore();
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [tempName, setTempName] = React.useState(collegeName);
+
+    const handleSave = () => {
+        setCollegeName(tempName);
+        setIsEditing(false);
+    };
+
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
         { icon: CalendarDays, label: 'Upcoming Events', path: '/upcoming' },
@@ -12,13 +22,43 @@ export const Sidebar: React.FC = () => {
     return (
         <aside className="w-72 bg-white/80 backdrop-blur-xl border-r border-slate-100 min-h-screen hidden md:block z-40">
             <div className="p-8">
-                <div className="flex items-center space-x-3 group cursor-pointer">
-                    <div className="bg-indigo-600 p-2.5 rounded-2xl shadow-lg shadow-indigo-200 group-hover:rotate-12 transition-transform duration-300">
+                <div className="flex items-start space-x-3 group">
+                    <div className="bg-indigo-600 p-2.5 rounded-2xl shadow-lg shadow-indigo-200 group-hover:rotate-12 transition-transform duration-300 shrink-0">
                         <Sparkles className="h-6 w-6 text-white" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                         <span className="text-xl font-black text-slate-900 tracking-tight block leading-none">Campus<span className="text-indigo-600">Pro</span></span>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">College Event Platform</span>
+
+                        {/* College Name Slot */}
+                        <div className="mt-2 group/college relative">
+                            {isEditing ? (
+                                <div className="flex items-center space-x-1">
+                                    <input
+                                        autoFocus
+                                        value={tempName}
+                                        onChange={(e) => setTempName(e.target.value)}
+                                        onBlur={handleSave}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                                        className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 border-none p-1 rounded w-full focus:ring-1 focus:ring-indigo-300"
+                                    />
+                                    <button onClick={handleSave} className="text-emerald-500 hover:text-emerald-600">
+                                        <Check className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">
+                                        {collegeName}
+                                    </span>
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="opacity-0 group-hover/college:opacity-100 transition-opacity ml-1 text-slate-300 hover:text-indigo-500"
+                                    >
+                                        <Edit3 className="h-2.5 w-2.5" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

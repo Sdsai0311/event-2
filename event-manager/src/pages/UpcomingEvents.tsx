@@ -4,12 +4,16 @@ import { useEventStore } from '../store/eventStore';
 import { EventCard } from '../components/events/EventCard';
 import { Plus, Search, Filter, LayoutGrid, List, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { useConfigStore } from '../store/configStore';
+import { Toast, type ToastType } from '../components/ui/Toast';
 
 export const UpcomingEvents: React.FC = () => {
     const navigate = useNavigate();
     const { events, fetchEvents, updateEvent, deleteEvent } = useEventStore();
+    const { collegeName } = useConfigStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // In a real app, you'd check user role. Here we just enable admin features for demo.
     const isAdmin = true;
@@ -30,22 +34,31 @@ export const UpcomingEvents: React.FC = () => {
 
     const handleApprove = async (id: string) => {
         await updateEvent(id, { isApproved: true, status: 'upcoming' });
+        setToast({ message: 'Event approved successfully!', type: 'success' });
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this event?')) {
             await deleteEvent(id);
+            setToast({ message: 'Event deleted successfully!', type: 'success' });
         }
     };
 
     return (
         <div className="space-y-8 pb-20">
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
             {/* Header section with Stats & Actions */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/40 p-8 rounded-[40px] border border-white">
                 <div>
                     <div className="flex items-center space-x-2 mb-2">
                         <Sparkles className="h-5 w-5 text-indigo-500 fill-indigo-500" />
-                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">Discovery Hub</span>
+                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">{collegeName} Discovery</span>
                     </div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight">Upcoming Events</h1>
                     <p className="text-slate-500 font-medium mt-1">Explore and participate in campus activities</p>

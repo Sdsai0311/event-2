@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, Clock, CheckCircle2, AlertCircle, Bell } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Card } from '../ui/Card';
@@ -21,6 +22,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     onApprove,
     onDelete
 }) => {
+    const navigate = useNavigate();
     const getStatusVariant = (status: string) => {
         switch (status) {
             case 'upcoming': return 'info';
@@ -149,6 +151,14 @@ export const EventCard: React.FC<EventCardProps> = ({
                         >
                             <CheckCircle2 className="h-3 w-3 mr-2" />
                             Approve
+                        </button>
+                    )}
+                    {isAdmin && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); navigate(`/upcoming/edit/${event.id}`); }}
+                            className="px-4 bg-white text-indigo-600 border border-indigo-50 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-50 transition-colors"
+                        >
+                            Edit
                         </button>
                     )}
                     {onDelete && (
