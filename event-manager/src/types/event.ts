@@ -1,4 +1,4 @@
-export type EventStatus = 'draft' | 'pending-approval' | 'confirmed' | 'past' | 'cancelled';
+export type EventStatus = 'draft' | 'pending-approval' | 'confirmed' | 'past' | 'cancelled' | 'upcoming' | 'ongoing' | 'completed';
 export type EventType =
     | 'technical-symposium'
     | 'workshop'
@@ -154,6 +154,12 @@ export interface AppEvent {
         estimated: number;
         confirmed: number;
     };
+    registrationDeadline?: string;
+    maxParticipants?: number;
+    posterUrl?: string;
+    organizerName?: string;
+    organizerContact?: string;
+    isApproved: boolean;
     feedbackUrl?: string;
     evaluationReport?: {
         averageRating: number;
@@ -162,3 +168,4 @@ export interface AppEvent {
     createdAt: string;
     updatedAt: string;
 }
+

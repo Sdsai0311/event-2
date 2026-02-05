@@ -18,6 +18,8 @@ import { EventFeedback } from './pages/EventFeedback';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { StudentRegistration } from './pages/StudentRegistration';
+import { UpcomingEvents } from './pages/UpcomingEvents';
+import { UploadUpcomingEvent } from './pages/UploadUpcomingEvent';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -33,6 +35,8 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<Dashboard />} />
+          <Route path="upcoming" element={<UpcomingEvents />} />
+          <Route path="upcoming/upload" element={<UploadUpcomingEvent />} />
           <Route path="create-event" element={<CreateEvent />} />
           <Route path="events/:id" element={<EventLayout />}>
             <Route index element={<EventOverview />} />

@@ -1,10 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Sparkles } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Sparkles, CalendarDays } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+        { icon: CalendarDays, label: 'Upcoming Events', path: '/upcoming' },
         { icon: PlusCircle, label: 'Create Event', path: '/create-event' },
     ];
 

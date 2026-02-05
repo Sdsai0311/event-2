@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { eventService } from '../api/services/eventService';
+import { updateEventStatuses } from '../utils/eventUtils';
 import type { AppEvent, BudgetItem, TimelineItem, Venue, Vendor, Staff, Guest, Risk, ChecklistItem } from '../types/event';
 
 interface EventState {
@@ -62,7 +63,15 @@ export const useEventStore = create<EventState>((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const events = await eventService.getEvents();
-            set({ events, isLoading: false });
+            const updatedEvents = updateEventStatuses(events);
+
+            // If any statuses changed, save them back to storage
+            const hasChanges = JSON.stringify(events) !== JSON.stringify(updatedEvents);
+            if (hasChanges) {
+                await eventService.saveEvents(updatedEvents);
+            }
+
+            set({ events: updatedEvents, isLoading: false });
         } catch (_error) {
             set({ error: 'Failed to fetch events', isLoading: false });
         }

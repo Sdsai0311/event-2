@@ -102,6 +102,7 @@ export const CreateEvent: React.FC = () => {
                 estimated: data.guestCount,
                 confirmed: 0,
             },
+            isApproved: true,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         });
