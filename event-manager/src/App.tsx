@@ -37,22 +37,59 @@ function App() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="upcoming" element={<UpcomingEvents />} />
-          <Route path="upcoming/upload" element={<UploadUpcomingEvent />} />
-          <Route path="upcoming/edit/:id" element={<EditUpcomingEvent />} />
-          <Route path="create-event" element={<CreateEvent />} />
+
+          {/* Admin Only Routes */}
+          <Route path="upcoming/upload" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <UploadUpcomingEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="upcoming/edit/:id" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <EditUpcomingEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="create-event" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CreateEvent />
+            </ProtectedRoute>
+          } />
+
           <Route path="events/:id" element={<EventLayout />}>
             <Route index element={<EventOverview />} />
             <Route path="guests" element={<EventGuests />} />
             <Route path="venues" element={<EventVenues />} />
             <Route path="vendors" element={<EventVendors />} />
-            <Route path="budget" element={<EventBudget />} />
-            <Route path="timeline" element={<EventTimeline />} />
-            <Route path="team" element={<EventTeam />} />
-            <Route path="risks" element={<EventRisks />} />
+
+            {/* Admin Only Event Details */}
+            <Route path="budget" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EventBudget />
+              </ProtectedRoute>
+            } />
+            <Route path="timeline" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EventTimeline />
+              </ProtectedRoute>
+            } />
+            <Route path="team" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EventTeam />
+              </ProtectedRoute>
+            } />
+            <Route path="risks" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EventRisks />
+              </ProtectedRoute>
+            } />
             <Route path="day-of" element={<EventDayOf />} />
             <Route path="certificates" element={<EventCertificates />} />
             <Route path="feedback" element={<EventFeedback />} />
-            <Route path="settings" element={<EventSettings />} />
+            <Route path="settings" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EventSettings />
+              </ProtectedRoute>
+            } />
           </Route>
         </Route>
         <Route path="/register/:eventId" element={<StudentRegistration />} />

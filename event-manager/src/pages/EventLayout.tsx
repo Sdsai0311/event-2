@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { Outlet, NavLink, useParams, Navigate } from 'react-router-dom';
 import { useEventStore } from '../store/eventStore';
 import { LayoutDashboard, Wallet, CalendarClock, Settings, MapPin, ShoppingBag, Users as UsersIcon, UserCheck, ShieldAlert, Zap, Award, MessageSquare } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 
 export const EventLayout: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { getEvent, fetchEvents, isLoading, events } = useEventStore();
+    const { user } = useAuthStore();
     const event = getEvent(id || '');
 
     useEffect(() => {
@@ -13,6 +15,8 @@ export const EventLayout: React.FC = () => {
             fetchEvents();
         }
     }, [fetchEvents, events.length]);
+
+    const isAdmin = user?.role === 'admin';
 
     if (isLoading) {
         return (
@@ -27,19 +31,19 @@ export const EventLayout: React.FC = () => {
     }
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Overview', path: '' },
-        { icon: UserCheck, label: 'Guests & Attendance', path: 'guests' },
-        { icon: Zap, label: 'Day of Event', path: 'day-of' },
-        { icon: Award, label: 'Certificates', path: 'certificates' },
-        { icon: MessageSquare, label: 'Feedback & Eval', path: 'feedback' },
-        { icon: MapPin, label: 'Venues', path: 'venues' },
-        { icon: ShoppingBag, label: 'Vendors', path: 'vendors' },
-        { icon: Wallet, label: 'Budget', path: 'budget' },
-        { icon: CalendarClock, label: 'Timeline', path: 'timeline' },
-        { icon: UsersIcon, label: 'Team', path: 'team' },
-        { icon: ShieldAlert, label: 'Risks', path: 'risks' },
-        { icon: Settings, label: 'Settings', path: 'settings' },
-    ];
+        { icon: LayoutDashboard, label: 'Overview', path: '', roles: ['student', 'admin'] },
+        { icon: UserCheck, label: 'Guests & Attendance', path: 'guests', roles: ['admin'] },
+        { icon: Zap, label: 'Day of Event', path: 'day-of', roles: ['student', 'admin'] },
+        { icon: Award, label: 'Certificates', path: 'certificates', roles: ['student', 'admin'] },
+        { icon: MessageSquare, label: 'Feedback & Eval', path: 'feedback', roles: ['student', 'admin'] },
+        { icon: MapPin, label: 'Venues', path: 'venues', roles: ['admin'] },
+        { icon: ShoppingBag, label: 'Vendors', path: 'vendors', roles: ['admin'] },
+        { icon: Wallet, label: 'Budget', path: 'budget', roles: ['admin'] },
+        { icon: CalendarClock, label: 'Timeline', path: 'timeline', roles: ['admin'] },
+        { icon: UsersIcon, label: 'Team', path: 'team', roles: ['admin'] },
+        { icon: ShieldAlert, label: 'Risks', path: 'risks', roles: ['admin'] },
+        { icon: Settings, label: 'Settings', path: 'settings', roles: ['admin'] },
+    ].filter(item => !item.roles || (user && item.roles.includes(user.role)));
 
     return (
         <div className="flex flex-col h-full bg-[#f8fafc] animate-in">
@@ -65,18 +69,20 @@ export const EventLayout: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="hidden lg:flex items-center space-x-4">
-                        {/* Stats in header */}
-                        <div className="text-right">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirmed Guests</p>
-                            <p className="text-xl font-black text-slate-900">{event.guestCount?.confirmed || 0}</p>
+                    {isAdmin && (
+                        <div className="hidden lg:flex items-center space-x-4">
+                            {/* Stats in header */}
+                            <div className="text-right">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirmed Guests</p>
+                                <p className="text-xl font-black text-slate-900">{event.guestCount?.confirmed || 0}</p>
+                            </div>
+                            <div className="h-8 w-px bg-slate-100"></div>
+                            <div className="text-right">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Budget</p>
+                                <p className="text-xl font-black text-slate-900 font-mono">${(event.budget?.total || 0).toLocaleString()}</p>
+                            </div>
                         </div>
-                        <div className="h-8 w-px bg-slate-100"></div>
-                        <div className="text-right">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Budget</p>
-                            <p className="text-xl font-black text-slate-900 font-mono">${(event.budget?.total || 0).toLocaleString()}</p>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

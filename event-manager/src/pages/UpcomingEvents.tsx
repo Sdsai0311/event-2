@@ -5,18 +5,19 @@ import { EventCard } from '../components/events/EventCard';
 import { Plus, Search, Filter, LayoutGrid, List, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useConfigStore } from '../store/configStore';
+import { useAuthStore } from '../store/authStore';
 import { Toast, type ToastType } from '../components/ui/Toast';
 
 export const UpcomingEvents: React.FC = () => {
     const navigate = useNavigate();
     const { events, fetchEvents, updateEvent, deleteEvent } = useEventStore();
     const { collegeName } = useConfigStore();
+    const { user } = useAuthStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-    // In a real app, you'd check user role. Here we just enable admin features for demo.
-    const isAdmin = true;
+    const isAdmin = user?.role === 'admin';
 
     useEffect(() => {
         fetchEvents();
@@ -25,15 +26,21 @@ export const UpcomingEvents: React.FC = () => {
     const filteredEvents = events.filter(event => {
         const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             event.department.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
-        // Only show approved events to users, but show all to admins (or show pending separately)
+        const matchesCategory = selectedCategory === 'all' || event.eventType === selectedCategory;
+
+        if (!isAdmin) {
+            // Students only see approved events
+            const isApproved = event.status === 'confirmed' || event.isApproved;
+            return matchesSearch && matchesCategory && isApproved;
+        }
+
         return matchesSearch && matchesCategory;
     });
 
-    const categories = Array.from(new Set(events.map(e => e.category)));
+    const categories = Array.from(new Set(events.map(e => e.eventType)));
 
     const handleApprove = async (id: string) => {
-        await updateEvent(id, { isApproved: true, status: 'upcoming' });
+        await updateEvent(id, { isApproved: true, status: 'confirmed' });
         setToast({ message: 'Event approved successfully!', type: 'success' });
     };
 
@@ -45,7 +52,7 @@ export const UpcomingEvents: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-8 pb-20 text-slate-900">
             {toast && (
                 <Toast
                     message={toast.message}
@@ -64,15 +71,17 @@ export const UpcomingEvents: React.FC = () => {
                     <p className="text-slate-500 font-medium mt-1">Explore and participate in campus activities</p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <Button
-                        onClick={() => navigate('/upcoming/upload')}
-                        className="rounded-2xl px-6 py-4 shadow-xl shadow-indigo-200 flex items-center"
-                    >
-                        <Plus className="h-5 w-5 mr-2" />
-                        Upload New Event
-                    </Button>
-                </div>
+                {isAdmin && (
+                    <div className="flex items-center gap-3">
+                        <Button
+                            onClick={() => navigate('/upcoming/upload')}
+                            className="rounded-2xl px-6 py-4 shadow-xl shadow-indigo-200 flex items-center premium-gradient"
+                        >
+                            <Plus className="h-5 w-5 mr-2" />
+                            Upload New Event
+                        </Button>
+                    </div>
+                )}
             </div>
 
             {/* Filters & Search */}
@@ -88,10 +97,10 @@ export const UpcomingEvents: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex items-center gap-2 bg-white/50 p-2 rounded-[24px] ring-1 ring-slate-100">
+                <div className="flex items-center gap-2 bg-white/50 p-2 rounded-[24px] ring-1 ring-slate-100 overflow-x-auto max-w-full no-scrollbar">
                     <button
                         onClick={() => setSelectedCategory('all')}
-                        className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-white'}`}
+                        className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-white'}`}
                     >
                         All
                     </button>
@@ -99,20 +108,20 @@ export const UpcomingEvents: React.FC = () => {
                         <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
-                            className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${selectedCategory === cat ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-white'}`}
+                            className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-white'}`}
                         >
                             {cat.split('-')[0]}
                         </button>
                     ))}
                 </div>
 
-                <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl">
+                <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl shrink-0">
                     <button className="p-2.5 bg-white rounded-xl shadow-sm text-indigo-600"><LayoutGrid className="h-4 w-4" /></button>
                     <button className="p-2.5 text-slate-400 hover:text-slate-600"><List className="h-4 w-4" /></button>
                 </div>
             </div>
 
-            {/* Event Grid */}
+            {/* Event Grid slice */}
             {filteredEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredEvents.map((event) => (

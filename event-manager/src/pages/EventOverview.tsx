@@ -8,9 +8,14 @@ import { GoogleCalendarSync } from '../components/google/GoogleCalendarSync';
 import { EVENT_TYPE_LABELS } from '../types/event';
 import { useEventStore } from '../store/eventStore';
 
+import { useAuthStore } from '../store/authStore';
+
 export const EventOverview: React.FC = () => {
     const { event } = useOutletContext<{ event: AppEvent }>();
     const updateEvent = useEventStore((state) => state.updateEvent);
+    const { user } = useAuthStore();
+
+    const isAdmin = user?.role === 'admin';
 
     const handleApproval = async (approve: boolean) => {
         await updateEvent(event.id, {
@@ -36,7 +41,7 @@ export const EventOverview: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    {event.status === 'pending-approval' && (
+                    {isAdmin && event.status === 'pending-approval' && (
                         <div className="flex items-center gap-2 bg-amber-50 p-2 rounded-2xl border border-amber-100 mr-2">
                             <Button
                                 variant="outline"
@@ -84,26 +89,28 @@ export const EventOverview: React.FC = () => {
                     </div>
                 </Card>
 
-                <Card className="p-0 overflow-hidden relative group">
-                    <div className="p-8">
-                        <div className="flex items-center space-x-4 mb-6">
-                            <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600">
-                                <Wallet size={24} />
+                {isAdmin && (
+                    <Card className="p-0 overflow-hidden relative group">
+                        <div className="p-8">
+                            <div className="flex items-center space-x-4 mb-6">
+                                <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600">
+                                    <Wallet size={24} />
+                                </div>
+                                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Budget Utilization</span>
                             </div>
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Budget Utilization</span>
+                            <h4 className="text-4xl font-black text-slate-900 tracking-tighter">
+                                ${(event.budget.spent || 0).toLocaleString()} <span className="text-lg font-bold text-slate-300">/ ${(event.budget.total).toLocaleString()}</span>
+                            </h4>
+                            <p className="text-sm text-slate-500 font-medium mt-2">Allocated for hardware/logistics</p>
                         </div>
-                        <h4 className="text-4xl font-black text-slate-900 tracking-tighter">
-                            ${(event.budget.spent || 0).toLocaleString()} <span className="text-lg font-bold text-slate-300">/ ${(event.budget.total).toLocaleString()}</span>
-                        </h4>
-                        <p className="text-sm text-slate-500 font-medium mt-2">Allocated for hardware/logistics</p>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-50">
-                        <div
-                            className="h-full bg-emerald-600 transition-all duration-1000"
-                            style={{ width: `${Math.min(((event.budget.spent || 0) / event.budget.total) * 100, 100)}%` }}
-                        ></div>
-                    </div>
-                </Card>
+                        <div className="h-1.5 w-full bg-slate-50">
+                            <div
+                                className="h-full bg-emerald-600 transition-all duration-1000"
+                                style={{ width: `${Math.min(((event.budget.spent || 0) / event.budget.total) * 100, 100)}%` }}
+                            ></div>
+                        </div>
+                    </Card>
+                )}
 
                 <Card className="p-0 overflow-hidden relative group">
                     <div className="p-8">
@@ -168,41 +175,43 @@ export const EventOverview: React.FC = () => {
             </div>
 
             {/* Registration Center */}
-            <Card className="premium-gradient text-white border-0 shadow-2xl relative overflow-hidden">
-                <div className="absolute right-0 top-0 h-full w-1/3 bg-white/10 skew-x-12 transform translate-x-1/2"></div>
-                <div className="relative z-10 p-8 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-3">
-                            <div className="p-2 bg-white/20 rounded-xl">
-                                <Users className="h-5 w-5 text-white" />
+            {isAdmin && (
+                <Card className="premium-gradient text-white border-0 shadow-2xl relative overflow-hidden">
+                    <div className="absolute right-0 top-0 h-full w-1/3 bg-white/10 skew-x-12 transform translate-x-1/2"></div>
+                    <div className="relative z-10 p-8 flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-3">
+                                <div className="p-2 bg-white/20 rounded-xl">
+                                    <Users className="h-5 w-5 text-white" />
+                                </div>
+                                <h3 className="text-xl font-black">Registration Center</h3>
                             </div>
-                            <h3 className="text-xl font-black">Registration Center</h3>
+                            <p className="text-indigo-100 font-medium max-w-lg">
+                                Share this link with students to enable online registration.
+                                Responses are tracked in real-time in the Guests section.
+                            </p>
                         </div>
-                        <p className="text-indigo-100 font-medium max-w-lg">
-                            Share this link with students to enable online registration.
-                            Responses are tracked in real-time in the Guests section.
-                        </p>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 w-full md:w-auto min-w-[320px]">
-                        <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-2">Public Registration Link</p>
-                        <div className="flex items-center gap-3">
-                            <code className="text-xs bg-black/20 px-3 py-2 rounded-lg flex-1 overflow-hidden truncate">
-                                {window.location.origin}/register/{event.id}
-                            </code>
-                            <Button
-                                size="sm"
-                                className="bg-white text-indigo-600 hover:bg-slate-50 font-black text-xs px-4"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(`${window.location.origin}/register/${event.id}`);
-                                    alert('Link copied to clipboard!');
-                                }}
-                            >
-                                Copy
-                            </Button>
+                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 w-full md:w-auto min-w-[320px]">
+                            <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-2">Public Registration Link</p>
+                            <div className="flex items-center gap-3">
+                                <code className="text-xs bg-black/20 px-3 py-2 rounded-lg flex-1 overflow-hidden truncate">
+                                    {window.location.origin}/register/{event.id}
+                                </code>
+                                <Button
+                                    size="sm"
+                                    className="bg-white text-indigo-600 hover:bg-slate-50 font-black text-xs px-4"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(`${window.location.origin}/register/${event.id}`);
+                                        alert('Link copied to clipboard!');
+                                    }}
+                                >
+                                    Copy
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </Card>
+                </Card>
+            )}
 
             {/* Post-Event Evaluation */}
             {event.status === 'past' && (

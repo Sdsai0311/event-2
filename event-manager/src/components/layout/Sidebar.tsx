@@ -3,7 +3,10 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, PlusCircle, Sparkles, CalendarDays, Edit3, Check } from 'lucide-react';
 import { useConfigStore } from '../../store/configStore';
 
+import { useAuthStore } from '../../store/authStore';
+
 export const Sidebar: React.FC = () => {
+    const { user } = useAuthStore();
     const { collegeName, setCollegeName } = useConfigStore();
     const [isEditing, setIsEditing] = React.useState(false);
     const [tempName, setTempName] = React.useState(collegeName);
@@ -14,10 +17,10 @@ export const Sidebar: React.FC = () => {
     };
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: CalendarDays, label: 'Upcoming Events', path: '/upcoming' },
-        { icon: PlusCircle, label: 'Create Event', path: '/create-event' },
-    ];
+        { icon: LayoutDashboard, label: 'Dashboard', path: '/', roles: ['student', 'admin'] },
+        { icon: CalendarDays, label: 'Upcoming Events', path: '/upcoming', roles: ['student', 'admin'] },
+        { icon: PlusCircle, label: 'Create Event', path: '/create-event', roles: ['admin'] },
+    ].filter(item => !item.roles || (user && item.roles.includes(user.role)));
 
     return (
         <aside className="w-72 bg-white/80 backdrop-blur-xl border-r border-slate-100 min-h-screen hidden md:block z-40">

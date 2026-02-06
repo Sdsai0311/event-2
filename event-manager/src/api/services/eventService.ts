@@ -8,7 +8,68 @@ export const eventService = {
     async getEvents(): Promise<AppEvent[]> {
         await delay(800);
         const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        if (data) return JSON.parse(data);
+
+        // Mock data if empty
+        const mockEvents: AppEvent[] = [
+            {
+                id: '1',
+                title: 'Annual Tech Symposium 2026',
+                category: 'technical-symposium',
+                eventType: 'technical-symposium',
+                department: 'Computer Science',
+                date: new Date(Date.now() + 86400000 * 5).toISOString().split('T')[0], // 5 days from now
+                time: '10:00 AM',
+                location: 'Main Auditorium',
+                description: 'Join us for the biggest tech event of the year featuring guest speakers from lead tech companies.',
+                objectives: 'To showcase innovation and talent in the engineering departments.',
+                outcomes: 'Students gain industry exposure and networking opportunities.',
+                facultyCoordinator: 'Dr. Sarah Wilson',
+                status: 'confirmed',
+                isApproved: true,
+                budget: { total: 5000, spent: 1200 },
+                budgetItems: [],
+                timelineItems: [],
+                venues: [],
+                vendors: [],
+                staff: [],
+                guests: [],
+                risks: [],
+                dayOfChecklist: [],
+                guestCount: { estimated: 500, confirmed: 124 },
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '2',
+                title: 'Campus Hackathon',
+                category: 'hackathon',
+                eventType: 'hackathon',
+                department: 'IT Department',
+                date: new Date().toISOString().split('T')[0], // Today
+                time: '09:00 AM',
+                location: 'Innovation Lab',
+                description: 'A 24-hour coding challenge to solve real-world problems.',
+                objectives: 'Encourage collaborative coding and problem solving.',
+                outcomes: 'Functional prototypes and potential startup ideas.',
+                facultyCoordinator: 'Prof. James Bond',
+                status: 'confirmed',
+                isApproved: true,
+                budget: { total: 2000, spent: 800 },
+                budgetItems: [],
+                timelineItems: [],
+                venues: [],
+                vendors: [],
+                staff: [],
+                guests: [],
+                risks: [],
+                dayOfChecklist: [],
+                guestCount: { estimated: 100, confirmed: 45 },
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+        ];
+        return mockEvents;
     },
 
     async getEventById(id: string): Promise<AppEvent | null> {
