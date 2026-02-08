@@ -16,12 +16,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
         const variants = {
-            primary: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200/50 focus:ring-indigo-500',
-            secondary: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:ring-indigo-200',
-            outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 focus:ring-slate-100',
-            ghost: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:ring-slate-100',
-            danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-md shadow-rose-200/50 focus:ring-rose-500',
-            success: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-200/50 focus:ring-emerald-500',
+            primary: 'bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-md shadow-indigo-200/50 dark:shadow-indigo-900/50 focus:ring-indigo-500 dark:focus:ring-indigo-400',
+            secondary: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 focus:ring-indigo-200 dark:focus:ring-indigo-500/30',
+            outline: 'border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-slate-100 dark:focus:ring-slate-700',
+            ghost: 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 focus:ring-slate-100 dark:focus:ring-slate-700',
+            danger: 'bg-rose-600 dark:bg-rose-500 text-white hover:bg-rose-700 dark:hover:bg-rose-600 shadow-md shadow-rose-200/50 dark:shadow-rose-900/50 focus:ring-rose-500 dark:focus:ring-rose-400',
+            success: 'bg-emerald-600 dark:bg-emerald-500 text-white hover:bg-emerald-700 dark:hover:bg-emerald-600 shadow-md shadow-emerald-200/50 dark:shadow-emerald-900/50 focus:ring-emerald-500 dark:focus:ring-emerald-400',
         };
 
         const sizes = {

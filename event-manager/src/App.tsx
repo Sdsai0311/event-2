@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
@@ -22,8 +23,19 @@ import { UpcomingEvents } from './pages/UpcomingEvents';
 import { UploadUpcomingEvent } from './pages/UploadUpcomingEvent';
 import { EditUpcomingEvent } from './pages/EditUpcomingEvent';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { useConfigStore } from './store/configStore';
 
 function App() {
+  const { isDarkMode } = useConfigStore();
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   return (
     <BrowserRouter>
       <Routes>

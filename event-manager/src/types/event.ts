@@ -43,6 +43,7 @@ export interface BudgetItem {
     paid: number;
     dueDate?: string;
     isPaid: boolean;
+    proofUrl?: string;
 }
 
 export interface TimelineItem {

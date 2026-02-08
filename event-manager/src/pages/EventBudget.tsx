@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, FileText, Upload, X } from 'lucide-react';
 import type { AppEvent, BudgetItem } from '../types/event';
 import { useEventStore } from '../store/eventStore';
 import { Card } from '../components/ui/Card';
@@ -20,6 +20,7 @@ const budgetItemSchema = z.object({
     actualCost: z.coerce.number().min(0),
     paid: z.coerce.number().min(0),
     isPaid: z.boolean(),
+    proofUrl: z.string().optional(),
 });
 
 type BudgetFormData = z.infer<typeof budgetItemSchema>;
@@ -29,6 +30,8 @@ export const EventBudget: React.FC = () => {
     const { addBudgetItem, updateBudgetItem, deleteBudgetItem } = useEventStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<BudgetItem | null>(null);
+    const [proofFile, setProofFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     const {
         register,
@@ -44,6 +47,7 @@ export const EventBudget: React.FC = () => {
             actualCost: 0,
             paid: 0,
             isPaid: false,
+            proofUrl: '',
         },
     });
 
@@ -56,7 +60,10 @@ export const EventBudget: React.FC = () => {
             actualCost: 0,
             paid: 0,
             isPaid: false,
+            proofUrl: '',
         });
+        setProofFile(null);
+        setPreviewUrl(null);
         setIsModalOpen(true);
     };
 
@@ -69,8 +76,28 @@ export const EventBudget: React.FC = () => {
             actualCost: item.actualCost,
             paid: item.paid,
             isPaid: item.isPaid,
+            proofUrl: item.proofUrl || '',
         });
+        setProofFile(null);
+        setPreviewUrl(item.proofUrl || null);
         setIsModalOpen(true);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setProofFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeProof = () => {
+        setProofFile(null);
+        setPreviewUrl(null);
     };
 
     const onSubmit = (data: BudgetFormData) => {
@@ -81,6 +108,7 @@ export const EventBudget: React.FC = () => {
             actualCost: data.actualCost,
             paid: data.paid,
             isPaid: data.isPaid,
+            proofUrl: previewUrl || undefined,
         };
 
         if (editingItem) {
@@ -156,6 +184,7 @@ export const EventBudget: React.FC = () => {
                                 <th className="px-6 py-4 font-semiboild">Actual</th>
                                 <th className="px-6 py-4 font-semiboild">Paid</th>
                                 <th className="px-6 py-4 font-semiboild">Status</th>
+                                <th className="px-6 py-4 font-semiboild">Proof</th>
                                 <th className="px-6 py-4 font-semiboild">Actions</th>
                             </tr>
                         </thead>
@@ -179,6 +208,22 @@ export const EventBudget: React.FC = () => {
                                                 ${item.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                                 {item.isPaid ? 'Paid' : 'Pending'}
                                             </span>
+
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {item.proofUrl ? (
+                                                <a
+                                                    href={item.proofUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center text-indigo-600 hover:text-indigo-800"
+                                                >
+                                                    <FileText className="h-4 w-4 mr-1" />
+                                                    View
+                                                </a>
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">-</span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-3">
@@ -202,7 +247,7 @@ export const EventBudget: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
-            </Card>
+            </Card >
 
             <Modal
                 isOpen={isModalOpen}
@@ -255,6 +300,54 @@ export const EventBudget: React.FC = () => {
                         </div>
                     </div>
 
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Proof of Payment / Bill
+                        </label>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative hover:border-indigo-400 transition-colors">
+                            {previewUrl ? (
+                                <div className="space-y-2 text-center">
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <FileText className="h-8 w-8 text-indigo-500" />
+                                        <span className="text-sm text-gray-900 font-medium">Document Attached</span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={removeProof}
+                                        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 bg-white rounded-full p-1 shadow-sm border border-gray-200"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                    <p className="text-xs text-green-600">Ready to upload</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-1 text-center">
+                                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                    <div className="flex text-sm text-gray-600">
+                                        <label
+                                            htmlFor="file-upload"
+                                            className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                        >
+                                            <span>Upload a file</span>
+                                            <input
+                                                id="file-upload"
+                                                name="file-upload"
+                                                type="file"
+                                                className="sr-only"
+                                                accept="image/*,.pdf"
+                                                onChange={handleFileChange}
+                                            />
+                                        </label>
+                                        <p className="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                        PNG, JPG, PDF up to 10MB
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100 mt-6">
                         <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                             Cancel
@@ -265,6 +358,6 @@ export const EventBudget: React.FC = () => {
                     </div>
                 </form>
             </Modal>
-        </div>
+        </div >
     );
 };
